@@ -1,0 +1,16 @@
+{
+  "appId": "com.cliqecareapp.careapp",
+  "appName": "Cliqe Care App",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://apptest.justintime.name.ng/careapp",
+    "cleartext": true,
+    "allowNavigation": [
+      "apptest.justintime.name.ng"
+    ]
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

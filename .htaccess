@@ -1,0 +1,30 @@
+# ----------------------------------------------------------------------
+# Just in Time Group ERP - Carer Mobile App Routing
+# File Path: /careapp/.htaccess
+# ----------------------------------------------------------------------
+
+# Disable directory browsing and MultiViews (Crucial for preventing redirect loops)
+Options -Indexes -MultiViews
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Explicitly set the base path for your localhost subfolder
+    RewriteBase /erp-jit/careapp/
+
+    # 1. Allow direct access to physical files (like assets/ionic, images)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    
+    # 2. Allow direct access to physical directories
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # 3. Route everything else through the front controller (index.php)
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# ----------------------------------------------------------------------
+# Security: Block direct web access to sensitive configuration files
+# ----------------------------------------------------------------------
+<Files "config.php">
+    Require all denied
+</Files>
