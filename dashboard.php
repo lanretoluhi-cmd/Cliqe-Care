@@ -374,9 +374,9 @@ $progressPct = $totalShifts > 0 ? ($completedShifts / $totalShifts) * 100 : 0;
                 <ion-label>Notice Board</ion-label>
             </ion-tab-button>
 
-            <ion-tab-button tab="notifications" onclick="window.location.href='<?= CAREAPP_BASE_URL ?>notifications'">
+            <ion-tab-button tab="notifications" onclick="window.location.href='<?= CAREAPP_BASE_URL ?>incidents'">
                 <ion-icon name="notifications-outline"></ion-icon>
-                <ion-label>Alerts</ion-label>
+                <ion-label>Incidents</ion-label>
             </ion-tab-button>
 
             <ion-tab-button tab="settings" onclick="window.location.href='<?= CAREAPP_BASE_URL ?>settings'">

@@ -3,6 +3,7 @@
  * Just in Time Group ERP - Carer Mobile App Assigned Clients
  * File Path: /careapp/clients.php
  * Features: Scoped Client List, CQC Critical Alerts (Top Priority), Core Information, and actionable Care Plan.
+ * Update: Fixed header overlap, added native hardware back button support, and implemented form preloaders.
  */
 
 declare(strict_types=1);
@@ -122,16 +123,15 @@ if ($clientId) {
         body { overscroll-behavior-y: none; }
         ion-content { --background: #F8FAFC; }
         
-        /* HEADER */
+        /* HEADER - Moved inside ion-header so sticky top is handled by Ionic naturally */
         .app-header {
             background: white;
-            padding: calc(env(safe-area-inset-top, 20px) + 15px) 20px 20px;
+            padding: calc(env(safe-area-inset-top, 20px) + 15px) 20px 15px;
             display: flex; align-items: center; justify-content: space-between; gap: 15px;
-            position: sticky; top: 0; z-index: 100;
             border-bottom: 1px solid #E2E8F0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
-        .btn-back { background: #F1F5F9; border: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #475569; cursor: pointer; }
+        .btn-back { background: #F1F5F9; border: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #475569; cursor: pointer; transition: 0.2s; }
+        .btn-back:active { transform: scale(0.95); background: #E2E8F0; }
         .header-title { font-size: 18px; font-weight: 900; color: #1E293B; }
 
         .content-pad { padding: 25px 20px 100px 20px; }
@@ -205,19 +205,26 @@ if ($clientId) {
 </head>
 <body>
 
-    <div class="app-header">
-        <?php if($clientId): ?>
-            <button class="btn-back" onclick="window.location.href='<?= CAREAPP_BASE_URL ?>clients'">
-                <i data-lucide="arrow-left" style="width: 20px;"></i>
-            </button>
-            <div class="header-title">Clinical Profile</div>
-            <div style="width:40px;"></div> <!-- Spacer for centering -->
-        <?php else: ?>
-            <div class="header-title" style="margin-left: 10px;">My Assigned Clients</div>
-        <?php endif; ?>
-    </div>
-
     <ion-app>
+        <!-- Use ion-header to ensure the header never overlaps with ion-content natively -->
+        <ion-header class="ion-no-border">
+            <div class="app-header">
+                <?php if($clientId): ?>
+                    <button class="btn-back" onclick="window.location.href='clients.php'">
+                        <i data-lucide="arrow-left" style="width: 20px;"></i>
+                    </button>
+                    <div class="header-title">Clinical Profile</div>
+                    <div style="width:40px;"></div> <!-- Spacer for centering -->
+                <?php else: ?>
+                    <button class="btn-back" onclick="window.location.href='dashboard.php'">
+                        <i data-lucide="arrow-left" style="width: 20px;"></i>
+                    </button>
+                    <div class="header-title">My Assigned Clients</div>
+                    <div style="width:40px;"></div> <!-- Spacer for centering -->
+                <?php endif; ?>
+            </div>
+        </ion-header>
+
         <ion-content scroll-y="true">
             <div class="content-pad">
                 
@@ -472,23 +479,23 @@ if ($clientId) {
         
         <!-- NATIVE TAB NAVIGATION -->
         <ion-tab-bar slot="bottom">
-            <ion-tab-button tab="schedule" onclick="window.location.href='<?= CAREAPP_BASE_URL ?>dashboard'">
+            <ion-tab-button tab="schedule" onclick="window.location.href='dashboard.php'">
                 <ion-icon name="calendar-outline"></ion-icon>
                 <ion-label>Today</ion-label>
             </ion-tab-button>
 
             <!-- CLIENTS TAB -->
-            <ion-tab-button tab="clients" onclick="window.location.href='<?= CAREAPP_BASE_URL ?>clients'" selected="true">
+            <ion-tab-button tab="clients" onclick="window.location.href='clients.php'" selected="true">
                 <ion-icon name="people-outline"></ion-icon>
                 <ion-label>Clients</ion-label>
             </ion-tab-button>
 
-            <ion-tab-button tab="notifications" onclick="window.location.href='<?= CAREAPP_BASE_URL ?>notifications'">
+            <ion-tab-button tab="notifications" onclick="window.location.href='notifications.php'">
                 <ion-icon name="notifications-outline"></ion-icon>
                 <ion-label>Alerts</ion-label>
             </ion-tab-button>
 
-            <ion-tab-button tab="settings" onclick="window.location.href='<?= CAREAPP_BASE_URL ?>settings'">
+            <ion-tab-button tab="settings" onclick="window.location.href='settings.php'">
                 <ion-icon name="person-circle-outline"></ion-icon>
                 <ion-label>Profile</ion-label>
             </ion-tab-button>
@@ -497,6 +504,33 @@ if ($clientId) {
 
     <script>
         lucide.createIcons();
+
+        // Register Android Hardware Back Button listener
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+            window.Capacitor.Plugins.App.addListener('backButton', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('id')) {
+                    // We are on the Detail View, go back to the List View
+                    window.location.href = 'clients.php';
+                } else {
+                    // We are on the List View, go back to the Dashboard
+                    window.location.href = 'dashboard.php';
+                }
+            });
+        }
+
+        // Global Form Preloader to prevent duplicate submissions and provide visual feedback
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', async function(e) {
+                if (this.checkValidity()) {
+                    const loading = document.createElement('ion-loading');
+                    loading.message = 'Processing securely...';
+                    loading.spinner = 'crescent';
+                    document.body.appendChild(loading);
+                    await loading.present();
+                }
+            });
+        });
     </script>
 </body>
 </html>
