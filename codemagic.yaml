@@ -7,7 +7,7 @@ workflows:
     environment:
       node: latest
       ios_signing:
-        distribution_type: ad_hoc
+        distribution_type: app_store
         bundle_identifier: com.cliqecareapp.careapp
       vars:
         XCODE_PROJECT: ios/App/App.xcodeproj
